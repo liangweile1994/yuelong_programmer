@@ -1,0 +1,56 @@
+1.160929 felx boost加功率，flex 无区模式检锅脉冲增加比较电流值减小  常规程序 TRE/CR首单
+2.160930 3# 207°C油温，改成 2# 3# 4#一样的处理
+3.161018  COPY IF7003-2121 E5-U-9 问题，错误状态tiao_on 清零；调功1234 周期与常规型号一致
+4.161024  按TIMER_KEY 清 general_timer
+5.170424  在main_if7008s_2B2B2B2B_161118_1.C的基础上修改 TEH客户首单50台
+6.170518  增加 2个APT 分别多个按键 时关机处理， KEY_SCAN 里面
+7.170621  当前炉头BOOST进行时，操作同侧另一个炉头档位，当前炉头的BOOST_TIME没有清0，解决该BUG
+8.170904  0x22 Filter0 由原来的0x00 改为0x20(增强抗EFT能力)，apt_min_reset 复位有10改为>=20
+9.170920 修改灵敏度 sdec-s8  11->9; sinc 10->9
+10.171005  修改小炉（无区方盘或者180盘）无锅状态下，功率冲高的问题，其它所有型号都需要修改（ROM增加约60 bytes）
+           一，增加  RAM 定义
+                        @near u8  zone_1_nopan_wait =0;
+			@near u8  zone_2_nopan_wait =0;
+			@near u8  zone_3_nopan_wait =0;
+			@near u8  zone_4_nopan_wait =0;
+			@near u8  zone_5_nopan_wait =0;
+	   二，comm_get_deal() 里面，增加
+		u8 *npan =&zone_1_nopan_wait +index;
+			if(Get_data ==DATA_PAN_NO)  
+      			{
+      			(*npan) =5;
+			。。。
+			}
+	   三，comm_deal(）里面，增加
+			u8 *npan =&zone_1_nopan_wait+index;
+                  if((*tw)<5)  这行改为 if(((*tw)<5)||(*npan))
+		  {
+			cur_no =0x10;
+			if(index%2)  (*pwm) =70;				
+			else   (*pwm) =115;
+		  }
+	   四，Sec_bz 里面，增加
+                      	c  =&zone_1_nopan_wait +i;
+                     for(i=0;i<5;i++) 
+			{
+			。。。
+			if(*c) (*c)--;
+			。。。
+			}
+11.171021  在IF7007S-2B2B2B2B基础上修改，CRYSTAL 客户展示样机
+12.180204更换电流采样滤波电容由100UF改为4.7UF/D358放宽2.5MV/天气冷 失调电压，降低功率100W
+      2000W(119->113)  
+      2600W(158->152) 
+    
+      3000W(190->180)
+
+      1500W(181->170) 
+      2000W(241->230) 
+13.180226 在IF7007S-5B5B3B1B基础上修改为 IF7022S-5B5B3B1B 全熄屏
+14.180609 SDE客户在main_IF7022S-5B5B3B1B-ITS-180425_2.C基础上修改为IT7022S-P5-1-6-BAOWEN-STOP-GO
+15.180623保温状态下禁止BOOST按键
+16.180709  SDE 客户BOOST 完成返回9档
+17.180719 SDE客户 滑控任何档位清除 BOOST ，定时计时默认时间 为0
+18.180802  SDE 客户完善 0->P->9 时 给默认2小时工作时间设置
+19.180813  SDE 客户新开发 ,在main_IT7022S-3B1B4B-P5-1-6-BAOWEN-STOP-GO_180802基础上修改为main_IT7028S-3B1B4B-P5-1-6-BAOWEN-STOP-GO
+20.180828  双APT 开关按键处理和多按键识别 处理纠正BUG

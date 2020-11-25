@@ -1,0 +1,86 @@
+1.160929 felx boost加功率，flex 无区模式检锅脉冲增加比较电流值减小  常规程序 TRE/CR首单
+2.160930 3# 207°C油温，改成 2# 3# 4#一样的处理
+3.161018  COPY IF7003-2121 E5-U-9 问题，错误状态tiao_on 清零；调功1234 周期与常规型号一致
+4.161024  按TIMER_KEY 清 general_timer
+5.170424  在main_if7008s_2B2B2B2B_161118_1.C的基础上修改 TEH客户首单50台
+6.170506  在main_IF7007S_2B1B2B1B_170506_1.C的基础上修改 ITS认证报备机型 IT6507S-2B1B4B
+7.170518  增加 2个APT 分别多个按键 时关机处理， KEY_SCAN 里面
+8.170621  当前炉头BOOST进行时，操作同侧另一个炉头档位，当前炉头的BOOST_TIME没有清0，解决该BUG
+9.170904  0x22 Filter0 由原来的0x00 改为0x20(增强抗EFT能力)，apt_min_reset 复位有10改为>=20
+10.170920 修改灵敏度 sdec-s8  11->9; sinc 10->9
+11.171005  修改小炉（无区方盘或者180盘）无锅状态下，功率冲高的问题，其它所有型号都需要修改（ROM增加约60 bytes）
+           一，增加  RAM 定义
+                        @near u8  zone_1_nopan_wait =0;
+			@near u8  zone_2_nopan_wait =0;
+			@near u8  zone_3_nopan_wait =0;
+			@near u8  zone_4_nopan_wait =0;
+			@near u8  zone_5_nopan_wait =0;
+	   二，comm_get_deal() 里面，增加
+		u8 *npan =&zone_1_nopan_wait +index;
+			if(Get_data ==DATA_PAN_NO)  
+      			{
+      			(*npan) =5;
+			。。。
+			}
+	   三，comm_deal(）里面，增加
+			u8 *npan =&zone_1_nopan_wait+index;
+                  if((*tw)<5)  这行改为 if(((*tw)<5)||(*npan))
+		  {
+			cur_no =0x10;
+			if(index%2)  (*pwm) =70;				
+			else   (*pwm) =115;
+		  }
+	   四，Sec_bz 里面，增加
+                      	c  =&zone_1_nopan_wait +i;
+                     for(i=0;i<5;i++) 
+			{
+			。。。
+			if(*c) (*c)--;
+			。。。
+			}
+12.180204更换电流采样滤波电容由100UF改为4.7UF/D358放宽2.5MV/天气冷 失调电压，降低功率100W
+      2000W(119->113)  
+      2600W(158->152) 
+    
+      2300W(130->134)
+      3000W(190->180)
+
+      1500W(181->170) 
+      2000W(241->230) 
+13.180507 CANDY 样机，先做常规的P5 1-6
+14.180518 CANDY 样机，增加保温 SOTP & GO
+15.180608 修改进入保温功能时boost_time_X 清零
+16.180704 增加2.5/3.5/4.5/5.5/7.0 限功程序
+17.180825  降功速度加快，Boost 退出后回到9档
+18.180828  双APT 开关按键处理和多按键识别 处理纠正BUG
+19.180913 CANDY 要求程序默认功率配置为 7KW
+20.180921 统一保温状态下不能+- 或滑控，无区模式下不能保温
+21.181227 CANDY 新增显示 PN FOR POWER limit function
+          when limit_power ,then  display PN    181227
+   		limit_count新增
+   		limit_power() 修改
+   		disp P & disp N 新增
+   		boost_key()   clear SEC_BZ 修改上下层函数
+22.190301 CANDY 6.5改6.9 ，程序版本号有 V3 改为V4
+23.190301 CANDY 新增IF7007S-2B2B2B2B在main_IT6507S-2B2B4B-P5-1-6-CANDY-BAOWEN-STOP-GO_190301_(显示PN）1.C基础上修改
+24.190306 candy 要求滑控退出BOOST,按键BOOST立即执行，同时要求限功调节从默认数据开始，往上递增
+              在Pow_adj_function_key(void)里，
+          sys_adj_status++;
+     		if(sys_adj_status ==2)  sys_disp_status =0x25;
+     		if(sys_adj_status ==3)  sys_disp_status =0x30;
+     		if(sys_adj_status ==4)  sys_disp_status =0x45;
+     		if(sys_adj_status ==5)  sys_disp_status =0x65;
+     		if(sys_adj_status ==6)  sys_disp_status =0x74;
+     		
+     		if(sys_adj_status >6)   {sys_adj_status =2;sys_disp_status =0x25;}
+          修改为如下：
+         sys_adj_status++;
+     		if(sys_adj_status ==2)  sys_disp_status =sys_pow_status;
+     		else if(sys_disp_status ==0x25)  sys_disp_status =0x30;
+     		else if(sys_disp_status ==0x30)  sys_disp_status =0x45;
+     		else if(sys_disp_status ==0x45)  sys_disp_status =0x65;
+     		else if(sys_disp_status ==0x65)  sys_disp_status =0x74;
+     		else if(sys_disp_status ==0x74)  sys_disp_status =0x25;
+25.190401 07S FUNC 按键降低灵敏度 由 9->15
+26.190621 DNY 客户在main_IF7007S-2B2B2B2B-P5-1-6-CANDY-BAOWEN-STOP-GO_s4-s5-dec-sensitive-190509_(显示PN）1修改为烟机灶机型 IFRH7034S-5B5B5B5B-P5-1-6-BAOWEN-STOP-GO-BBQ
+27.190625 MAA 客户在main_IFRH7034S-5B5B5B5B-P5-1-6-CANDY-BAOWEN-STOP-GO_BBQ-190625-4基础上修改为IFRH7035S-5B5B5B5B-P5-1-6-MAA-BAOWEN-STOP-GO_BBQ
