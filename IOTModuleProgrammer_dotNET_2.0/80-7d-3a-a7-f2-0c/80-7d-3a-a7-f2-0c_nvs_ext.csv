@@ -1,7 +1,0 @@
-key,type,encoding,value
-nvs_ext,namespace,,
-aws-root-ca.pem,file,binary,C:\Users\Administrator\Desktop\yuelongp\IOTModuleProgrammer_dotNET_2.0\cert_material\AmazonRootCA1.pem
-device.pem.crt,file,binary,C:\Users\Administrator\Desktop\yuelongp\IOTModuleProgrammer_dotNET_2.0\80-7d-3a-a7-f2-0c\80-7d-3a-a7-f2-0cAndHaierCA.crt
-device.pem.key,file,binary,C:\Users\Administrator\Desktop\yuelongp\IOTModuleProgrammer_dotNET_2.0\cert_material\deviceHaier.key.bin
-host-address,data,binary,ad7gxm15jbv1q-ats.iot.eu-central-1.amazonaws.com
-host-port,data,binary,8883
